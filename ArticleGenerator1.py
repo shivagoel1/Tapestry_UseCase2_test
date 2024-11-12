@@ -149,9 +149,15 @@ if st.button("Generate Research Article"):
             with st.spinner("Generating research article... This may take a few minutes."):
                 result = crew.kickoff()  # Execute the process
 
-            # Attempt to extract and display the content from the result
-            text_content = result.raw  # Ensure you access the correct attribute for the text
-            text_content = text_content.encode('utf-8', errors='ignore').decode('utf-8')  # Clean unsupported characters
+            # Attempt to display the content from `result`
+            # Assuming `result` is a string or JSON that can be printed directly
+            if isinstance(result, str):
+                text_content = result
+            elif isinstance(result, dict) and 'content' in result:
+                text_content = result['content']
+            else:
+                text_content = "The result format is not supported for display."
+
             st.success("Research article generated successfully!")
             st.markdown(text_content)  # Display the content as Markdown
 
