@@ -22,7 +22,7 @@ if uploaded_files:
     st.write("Uploaded Files:", ", ".join(file_names))
 
 # Save API Key in code
-openai_api_key = "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"  # Replace with your actual OpenAI API Key
+openai_api_key = "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"  # Replace with your actual OpenAI API Key
 
 # Button to start processing
 if st.button("Generate Research Article"):
