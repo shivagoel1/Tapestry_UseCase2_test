@@ -1,6 +1,6 @@
+import os
 import requests
 import streamlit as st
-import os
 import warnings
 from crewai import Agent, Task, Crew
 import io
@@ -10,8 +10,13 @@ from docx.shared import Pt, RGBColor
 # Suppress warnings
 warnings.filterwarnings('ignore')
 
-# Streamlit UI
+# Streamlit UI for entering API key
 st.title("Use Case 2")
+openai_api_key = st.text_input("Enter your OpenAI API Key", type="password")
+
+# Set the API key as an environment variable
+if openai_api_key:
+    os.environ["OPENAI_API_KEY"] = openai_api_key
 
 # Multiple file uploader
 uploaded_files = st.file_uploader("Upload one or more transcript files", type="txt", accept_multiple_files=True)
@@ -21,17 +26,17 @@ if uploaded_files:
     file_names = [file.name for file in uploaded_files]
     st.write("Uploaded Files:", ", ".join(file_names))
 
-# Save API Key in code
-openai_api_key = "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"  # Replace with your actual OpenAI API Key
-
 # Button to start processing
 if st.button("Generate Research Article"):
-    if not uploaded_files:
+    if not openai_api_key:
+        st.error("Please enter your OpenAI API Key.")
+    elif not uploaded_files:
         st.error("Please upload at least one transcript file.")
     else:
-        # Set up environment variables
-        os.environ["OPENAI_API_KEY"] = openai_api_key
-        os.environ["OPENAI_MODEL_NAME"] = 'gpt-4o'
+        # Define headers for OpenAI API requests
+        headers = {
+            "Authorization": f"Bearer {openai_api_key}"
+        }
 
         # Concatenate all file contents into a single string
         transcripts = ""
@@ -41,12 +46,11 @@ if st.button("Generate Research Article"):
 
         # Test API connection
         try:
-            response = requests.get("https://api.openai.com/v1/models",
-                headers={"Authorization": f"Bearer {openai_api_key}"})
+            response = requests.get("https://api.openai.com/v1/models", headers=headers)
             response.raise_for_status()  # Raise an error for bad responses
             st.success("API connection successful!")
 
-            # Define agents with original prompts
+            # Define agents with original prompts (assuming crewai usage is correct)
             planner = Agent(
                 role="Content Planner",
                 goal="Plan engaging and factually accurate content on the given topic",
